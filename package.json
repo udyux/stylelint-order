@@ -1,5 +1,5 @@
 {
-  "name": "stylelint-order",
+  "name": "@udyux/stylelint-order",
   "version": "2.1.0",
   "description": "A collection of order related linting rules for stylelint.",
   "keywords": [
