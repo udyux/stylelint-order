@@ -158,6 +158,23 @@ Matches all rules with selector matching pattern:
 }
 ```
 
+You can also specify a `label` property for the reporter. This can be useful to make regex selectors easier to understand in deubg messages:
+
+```js
+{
+	type: 'rule',
+	selector: /^&--\w+$/,
+	label: 'a BEM modifier ("&--mod")'
+},
+{
+	type: 'rule',
+	selector: /^&__\w+$/,
+	label: 'a BEM element ("&__elem")'
+}
+
+// => Expected rule with selector matching a BEM modifier ("&--mod") to come before rule with selector matching a BEM element ("&__elem")
+```
+
 ## Optional secondary options
 
 ### `unspecified: "top"|"bottom"|"ignore"`

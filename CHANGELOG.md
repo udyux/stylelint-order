@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## 2.1.0
+
+* Add optional custom `label` property to `order` extended-rule objects for clearer error reporting.
+
 ## 2.0.0
 
 This is a major release, because this plugin requires stylelint@9.8.0+ to work correctly with Less files.

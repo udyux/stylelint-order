@@ -36,7 +36,8 @@ module.exports = function getDescription(item) {
 			text = 'rule';
 
 			if (item.selector) {
-				text += ` with selector matching "${item.selector}"`;
+				const selector = item.label || `"${item.selector}"`;
+				text += ` with selector matching ${selector}`;
 			}
 		}
 
