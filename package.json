@@ -11,9 +11,9 @@
 	],
 	"author": "Aleks Hudochenkov <aleks@hudochenkov.com>",
 	"license": "MIT",
-	"repository": "hudochenkov/stylelint-order",
+	"repository": "udyux/stylelint-order",
 	"bugs": {
-		"url": "https://github.com/hudochenkov/stylelint-order/issues"
+		"url": "https://github.com/udyux/stylelint-order/issues"
 	},
 	"homepage": "https://github.com/hudochenkov/stylelint-order",
 	"engines": {
