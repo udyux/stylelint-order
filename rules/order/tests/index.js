@@ -1047,11 +1047,11 @@ testRule(rule, {
 	],
 });
 
-// Doesn't has fix, because postcss-sorting doesn't know about at-variables
 testRule(rule, {
 	ruleName,
 	syntax: 'less',
 	config: [['custom-properties', 'at-variables', 'declarations', 'rules', 'at-rules']],
+	fix: true,
 
 	accept: [
 		{
@@ -1088,6 +1088,15 @@ testRule(rule, {
 						color: blue;
 						top: 0;
 						@hello: 10px;
+					}
+				}
+			`,
+			fixed: `
+				div {
+					a {
+						@hello: 10px;
+						color: blue;
+						top: 0;
 					}
 				}
 			`,
@@ -1236,6 +1245,213 @@ testRule(rule, {
 					display: none;
 					--width: 10px;
 				}
+			`,
+		},
+	],
+});
+
+testRule(rule, {
+	ruleName,
+	config: [['declarations', 'rules', 'at-rules']],
+	syntax: 'css-in-js',
+	fix: true,
+
+	accept: [
+		{
+			code: `
+				const Component1 = styled.div\`
+					color: tomato;
+
+					\${props => props.great && 'color: red'};
+
+					a {
+						color: blue;
+					}
+
+					@media screen {
+						color: black;
+					}
+				\`;
+			`,
+		},
+		{
+			code: `
+				const Component5 = styled.div\`
+					div {
+						display: none;
+						\${props => props.great && 'color: red'};
+						span {
+						}
+
+						@media (min-width: 100px) {
+						}
+					}
+				\`;
+			`,
+		},
+	],
+
+	reject: [
+		{
+			code: `
+				const Component1 = styled.div\`
+					a {
+						color: blue;
+					}
+					color: tomato;
+
+					@media screen {
+						color: black;
+					}
+				\`;
+			`,
+			fixed: `
+				const Component1 = styled.div\`
+					color: tomato;
+					a {
+						color: blue;
+					}
+
+					@media screen {
+						color: black;
+					}
+				\`;
+			`,
+
+			message: messages.expected('declaration', 'rule'),
+		},
+		{
+			code: `
+				const Component2 = styled.div\`
+					@media screen {
+						color: black;
+					}
+					\${Button} {
+						color: blue;
+					}
+					color: tomato;
+				\`;
+			`,
+			fixed: `
+				const Component2 = styled.div\`
+					color: tomato;
+					\${Button} {
+						color: blue;
+					}
+					@media screen {
+						color: black;
+					}
+				\`;
+			`,
+		},
+		{
+			code: `
+				const Component3 = styled.div\`
+					div {
+						a {
+							color: blue;
+						}
+						color: tomato;
+					}
+				\`;
+			`,
+			fixed: `
+				const Component3 = styled.div\`
+					div {
+						color: tomato;
+						a {
+							color: blue;
+						}
+					}
+				\`;
+			`,
+		},
+		{
+			code: `
+				const Component4 = styled.div\`
+					span {
+					}
+
+					display: none;
+
+					@media (min-width: 100px) {
+					}
+
+					div {
+					}
+				\`;
+			`,
+			fixed: `
+				const Component4 = styled.div\`
+
+					display: none;
+					span {
+					}
+
+					div {
+					}
+
+					@media (min-width: 100px) {
+					}
+				\`;
+			`,
+		},
+		{
+			code: `
+				const Component5 = styled.div\`
+					div {
+						span {
+						}
+
+						display: none;
+
+						@media (min-width: 100px) {
+						}
+
+						div {
+						}
+					}
+				\`;
+			`,
+			fixed: `
+				const Component5 = styled.div\`
+					div {
+
+						display: none;
+						span {
+						}
+
+						div {
+						}
+
+						@media (min-width: 100px) {
+						}
+					}
+				\`;
+			`,
+		},
+		{
+			code: `
+				const Component3 = styled.div\`
+					\${props => props.great && 'color: red'};
+					div {
+						a {
+							color: blue;
+						}
+						color: tomato;
+					}
+				\`;
+			`,
+			fixed: `
+				const Component3 = styled.div\`
+					\${props => props.great && 'color: red'};
+					div {
+						color: tomato;
+						a {
+							color: blue;
+						}
+					}
+				\`;
 			`,
 		},
 	],
