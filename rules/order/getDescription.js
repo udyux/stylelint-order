@@ -37,6 +37,7 @@ module.exports = function getDescription(item) {
 
 			if (item.selector) {
 				const selector = item.label || `"${item.selector}"`;
+
 				text += ` with selector matching ${selector}`;
 			}
 		}

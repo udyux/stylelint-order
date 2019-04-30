@@ -1,4 +1,4 @@
-# stylelint-order [![Build Status][ci-img]][ci] [![npm version][npm-version-img]][npm] [![npm downloads last month][npm-downloads-img]][npm]
+# [forked] stylelint-order
 
 A plugin pack of order related linting rules for [stylelint]. Every rule support autofixing (`stylelint --fix`).
 
@@ -42,9 +42,9 @@ Like so:
 
 ## List of rules
 
-* [`order`](./rules/order/README.md): Specify the order of content within declaration blocks.
-* [`properties-order`](./rules/properties-order/README.md): Specify the order of properties within declaration blocks.
-* [`properties-alphabetical-order`](./rules/properties-alphabetical-order/README.md): Specify the alphabetical order of properties within declaration blocks.
+- [`order`](./rules/order/README.md): Specify the order of content within declaration blocks.
+- [`properties-order`](./rules/properties-order/README.md): Specify the order of properties within declaration blocks.
+- [`properties-alphabetical-order`](./rules/properties-alphabetical-order/README.md): Specify the alphabetical order of properties within declaration blocks.
 
 ## Autofixing
 
@@ -60,10 +60,7 @@ Autofixing is enabled by default if it's enabled in stylelint configuration. Aut
 {
 	"rules": {
 		"order/order": [
-			[
-				"custom-properties",
-				"declarations"
-			],
+			["custom-properties", "declarations"],
 			{
 				"disableFix": true
 			}
@@ -83,6 +80,5 @@ Less isn't supported. It might work, but haven't tested.
 [npm-version-img]: https://img.shields.io/npm/v/stylelint-order.svg
 [npm-downloads-img]: https://img.shields.io/npm/dm/stylelint-order.svg
 [npm]: https://www.npmjs.com/package/stylelint-order
-
 [stylelint]: https://stylelint.io/
 [postcss-sorting]: https://github.com/hudochenkov/postcss-sorting
