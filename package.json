@@ -1,7 +1,7 @@
 {
 	"name": "@udyux/stylelint-order",
 	"version": "3.1.0",
-	"description": "A collection of order related linting rules for stylelint.",
+	"description": "[fork] A collection of order related linting rules for stylelint.",
 	"keywords": [
 		"stylelint-plugin",
 		"stylelint",
