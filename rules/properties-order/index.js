@@ -27,6 +27,7 @@ const rule = function(expectation, options, context = {}) {
 				actual: options,
 				possible: {
 					unspecified: ['top', 'bottom', 'ignore', 'bottomAlphabetical'],
+					emptyLineBeforeUnspecified: ['always', 'never'],
 					disableFix: _.isBoolean,
 				},
 				optional: true,
@@ -39,6 +40,7 @@ const rule = function(expectation, options, context = {}) {
 
 		// By default, ignore unspecified properties
 		const unspecified = _.get(options, 'unspecified', 'ignore');
+		const emptyLineBeforeUnspecified = _.get(options, 'emptyLineBeforeUnspecified', '');
 		const disableFix = _.get(options, 'disableFix', false);
 		const isFixEnabled = context.fix && !disableFix;
 
@@ -48,6 +50,7 @@ const rule = function(expectation, options, context = {}) {
 			expectedOrder,
 			expectation,
 			unspecified,
+			emptyLineBeforeUnspecified,
 			messages,
 			ruleName,
 			result,
@@ -55,10 +58,21 @@ const rule = function(expectation, options, context = {}) {
 			isFixEnabled,
 		};
 
+		const processedParents = [];
+
 		// Check all rules and at-rules recursively
-		root.walk(function processRulesAndAtrules(node) {
+		root.walk(function processRulesAndAtrules(input) {
+			const node = utils.getContainingNode(input);
+
+			// Avoid warnings duplication, caused by interfering in `root.walk()` algorigthm with `utils.getContainingNode()`
+			if (processedParents.includes(node)) {
+				return;
+			}
+
+			processedParents.push(node);
+
 			if (utils.isRuleWithNodes(node)) {
-				checkNode(node, sharedInfo);
+				checkNode(node, sharedInfo, input);
 			}
 		});
 	};
