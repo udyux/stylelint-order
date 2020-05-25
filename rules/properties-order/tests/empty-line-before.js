@@ -1,7 +1,8 @@
 const rule = require('..');
+
 const { ruleName, messages } = rule;
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -334,10 +335,55 @@ testRule(rule, {
 			`,
 			message: messages.expectedEmptyLineBefore('position'),
 		},
+		{
+			description: '22',
+			code: `
+				a {
+
+					display: none;
+				}
+			`,
+			fixed: `
+				a {
+					display: none;
+				}
+			`,
+			message: messages.rejectedEmptyLineBefore('display'),
+		},
+		{
+			description: '23',
+			code: `
+				a {
+
+					position: absolute;
+				}
+			`,
+			fixed: `
+				a {
+					position: absolute;
+				}
+			`,
+			message: messages.rejectedEmptyLineBefore('position'),
+		},
+		{
+			description: '24',
+			code: `
+				a {
+
+					font-style: italic;
+				}
+			`,
+			fixed: `
+				a {
+					font-style: italic;
+				}
+			`,
+			message: messages.rejectedEmptyLineBefore('font-style'),
+		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -382,7 +428,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -666,7 +712,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -711,7 +757,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -983,7 +1029,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -1028,7 +1074,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -1068,15 +1114,6 @@ testRule(rule, {
 			description: '65',
 			code: `
 				a {
-					display: none;
-				}
-			`,
-		},
-		{
-			description: '66',
-			code: `
-				a {
-
 					display: none;
 				}
 			`,
@@ -1181,10 +1218,25 @@ testRule(rule, {
 			`,
 			message: messages.expectedEmptyLineBefore('display'),
 		},
+		{
+			description: '73.1',
+			code: `
+				a {
+
+					display: none;
+				}
+			`,
+			fixed: `
+				a {
+					display: none;
+				}
+			`,
+			message: messages.rejectedEmptyLineBefore('display'),
+		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -1234,7 +1286,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -1274,7 +1326,7 @@ testRule(rule, {
 	reject: [],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -1334,15 +1386,7 @@ testRule(rule, {
 					font-style: italic;
 				}
 			`,
-			fixed: `
-				a {
-					display: none;
-					position: absolute;
-
-					border-bottom: 1px solid red;
-					font-style: italic;
-				}
-			`,
+			unfixable: true,
 			message: messages.expectedEmptyLineBefore('position'),
 			description: `shouldn't apply fixes`,
 		},
@@ -1356,22 +1400,14 @@ testRule(rule, {
 					font-style: italic;
 				}
 			`,
-			fixed: `
-				a {
-					display: none;
-
-					position: absolute;
-					border-bottom: 1px solid red;
-					font-style: italic;
-				}
-			`,
+			unfixable: true,
 			message: messages.expectedEmptyLineBefore('border-bottom'),
 			description: `shouldn't apply fixes`,
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -1414,6 +1450,23 @@ testRule(rule, {
 					background-repeat: no-repeat;
 				}
 			`,
+			warnings: [
+				{
+					message: messages.expected('height', 'font-size'),
+				},
+				{
+					message: messages.expectedEmptyLineBefore('font-size'),
+				},
+				{
+					message: messages.expectedEmptyLineBefore('height'),
+				},
+				{
+					message: messages.expectedEmptyLineBefore('font-family'),
+				},
+				{
+					message: messages.expectedEmptyLineBefore('background-repeat'),
+				},
+			],
 		},
 		{
 			description: 'fix empty line before, order is fine',
@@ -1437,6 +1490,14 @@ testRule(rule, {
 					background-repeat: no-repeat;
 				}
 			`,
+			warnings: [
+				{
+					message: messages.expectedEmptyLineBefore('font-size'),
+				},
+				{
+					message: messages.expectedEmptyLineBefore('background-repeat'),
+				},
+			],
 		},
 	],
 });

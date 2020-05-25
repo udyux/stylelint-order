@@ -1,7 +1,8 @@
 const rule = require('..');
+
 const { ruleName, messages } = rule;
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [true],
 	fix: true,
@@ -26,10 +27,15 @@ testRule(rule, {
 			code: 'a { color: pink; top: 0; transform: scale(1); }',
 		},
 		{
-			code: 'a { -moz-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); }',
+			code: 'a { border-color: transparent; border-bottom-color: pink; }',
 		},
 		{
-			code: 'a { -webkit-transform: scale(1); -moz-transform: scale(1); transform: scale(1); }',
+			code:
+				'a { -moz-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); }',
+		},
+		{
+			code:
+				'a { -webkit-transform: scale(1); -moz-transform: scale(1); transform: scale(1); }',
 		},
 		{
 			code: 'a { color: pink; -webkit-font-smoothing: antialiased; top: 0; }',
@@ -84,6 +90,11 @@ testRule(rule, {
 			message: messages.expected('top', 'transform'),
 		},
 		{
+			code: 'a { border-bottom-color: pink; border-color: transparent; }',
+			fixed: 'a { border-color: transparent; border-bottom-color: pink; }',
+			message: messages.expected('border-color', 'border-bottom-color'),
+		},
+		{
 			code:
 				'a { color: pink; top: 0; -moz-transform: scale(1); transform: scale(1); -webkit-transform: scale(1); }',
 			fixed:
@@ -130,7 +141,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		true,
@@ -152,20 +163,20 @@ testRule(rule, {
 	reject: [
 		{
 			code: 'a { top: 0; color: pink; }',
-			fixed: 'a { top: 0; color: pink; }',
+			unfixable: true,
 			message: messages.expected('color', 'top'),
 			description: `shouldn't apply fixes`,
 		},
 		{
 			code: 'a { color: pink; transform: scale(1); top: 0; }',
-			fixed: 'a { color: pink; transform: scale(1); top: 0; }',
+			unfixable: true,
 			message: messages.expected('top', 'transform'),
 			description: `shouldn't apply fixes`,
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [true],
 	syntax: 'css-in-js',
@@ -233,8 +244,11 @@ testRule(rule, {
 					top: 0;
 				\`;
 			`,
+			message: messages.expected('color', 'top'),
 		},
 		{
+			// blocked by https://github.com/hudochenkov/stylelint-order/issues/115
+			skip: true,
 			code: `
 				const Component = styled.div\`
 					top: 0;
@@ -242,15 +256,12 @@ testRule(rule, {
 					color: tomato;
 				\`;
 			`,
-			fixed: `
-				const Component = styled.div\`
-					top: 0;
-					\${props => props.great && 'color: red;'}
-					color: tomato;
-				\`;
-			`,
+			unfixable: true,
+			message: messages.expected('color', 'top'),
 		},
 		{
+			// blocked by https://github.com/hudochenkov/stylelint-order/issues/115
+			skip: true,
 			code: `
 				const Component = styled.div\`
 					top: 0;
@@ -263,20 +274,12 @@ testRule(rule, {
 					}
 				\`;
 			`,
-			fixed: `
-				const Component = styled.div\`
-					top: 0;
-					\${props => props.great && 'color: red;'}
-					color: tomato;
-
-					a {
-						color: tomato;
-						top: 0;
-					}
-				\`;
-			`,
+			unfixable: true,
+			message: messages.expected('color', 'top'),
 		},
 		{
+			// blocked by https://github.com/hudochenkov/stylelint-order/issues/115
+			skip: true,
 			code: `
 				const Component = styled.div\`
 					color: tomato;
@@ -289,18 +292,8 @@ testRule(rule, {
 					}
 				\`;
 			`,
-			fixed: `
-				const Component = styled.div\`
-					color: tomato;
-					top: 0;
-
-					a {
-						top: 0;
-						\${props => props.great && 'color: red;'}
-						color: tomato;
-					}
-				\`;
-			`,
+			unfixable: true,
+			message: messages.expected('color', 'top'),
 		},
 	],
 });

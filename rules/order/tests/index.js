@@ -1,7 +1,8 @@
 const rule = require('..');
+
 const { ruleName, messages } = rule;
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [['custom-properties', 'dollar-variables', 'declarations', 'rules', 'at-rules']],
 	fix: true,
@@ -90,6 +91,7 @@ testRule(rule, {
 					display: none;
 				}
 			`,
+			message: messages.expected('$-variable', 'declaration'),
 		},
 		{
 			code: `
@@ -110,6 +112,7 @@ testRule(rule, {
 					}
 				}
 			`,
+			message: messages.expected('declaration', 'rule'),
 		},
 		{
 			code: `
@@ -130,6 +133,7 @@ testRule(rule, {
 					}
 				}
 			`,
+			message: messages.expected('$-variable', 'declaration'),
 		},
 		{
 			code: `
@@ -158,11 +162,12 @@ testRule(rule, {
 					@media (min-width: 100px) {}
 				}
 			`,
+			message: messages.expected('rule', 'at-rule'),
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -236,6 +241,7 @@ testRule(rule, {
 					@include hello;
 				}
 			`,
+			message: messages.expected('@include with a block', '@include'),
 		},
 		{
 			code: `
@@ -258,6 +264,7 @@ testRule(rule, {
 					}
 				}
 			`,
+			message: messages.expected('@include with a block', 'at-rule with a block'),
 		},
 		{
 			code: `
@@ -280,6 +287,7 @@ testRule(rule, {
 					}
 				}
 			`,
+			message: messages.expected('@include "media" with a block', 'at-rule with a block'),
 		},
 		{
 			code: `
@@ -298,6 +306,7 @@ testRule(rule, {
 					@extend .something;
 				}
 			`,
+			message: messages.expected('at-rule with a block', 'at-rule'),
 		},
 		{
 			code: `
@@ -312,11 +321,12 @@ testRule(rule, {
 					@extend .something;
 				}
 			`,
+			message: messages.expected('@include', 'at-rule'),
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -398,7 +408,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -450,6 +460,7 @@ testRule(rule, {
 					@extend .something;
 				}
 			`,
+			message: messages.expected('@include with a block', '@include'),
 		},
 		{
 			code: `
@@ -468,6 +479,7 @@ testRule(rule, {
 					}
 				}
 			`,
+			message: messages.expected('@include "media"', '@include "media" with a block'),
 		},
 		{
 			code: `
@@ -490,11 +502,12 @@ testRule(rule, {
 					}
 				}
 			`,
+			message: messages.expected('at-rule with a block', '@include "media" with a block'),
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -533,7 +546,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -584,11 +597,12 @@ testRule(rule, {
 					display: none;
 				}
 			`,
+			message: messages.expected('blockless at-rule', 'declaration'),
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -625,11 +639,12 @@ testRule(rule, {
 					@include hello;
 				}
 			`,
+			message: messages.expected('declaration', 'at-rule'),
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [['declarations', 'at-rules']],
 	fix: true,
@@ -659,11 +674,12 @@ testRule(rule, {
 					@include hello;
 				}
 			`,
+			message: messages.expected('declaration', 'at-rule'),
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		['custom-properties', 'declarations'],
@@ -694,7 +710,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		['custom-properties', 'declarations'],
@@ -712,12 +728,8 @@ testRule(rule, {
 					$width: 5px;
 				}
 			`,
-			fixed: `
-				a {
-					display: none;
-					$width: 5px;
-				}
-			`,
+			unfixable: true,
+			warnings: [{ message: messages.expected('$-variable', 'declaration') }],
 		},
 		{
 			code: `
@@ -726,17 +738,13 @@ testRule(rule, {
 					$width: 5px;
 				}
 			`,
-			fixed: `
-				a {
-					--height: 10px;
-					$width: 5px;
-				}
-			`,
+			unfixable: true,
+			message: messages.expected('$-variable', 'custom property'),
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		['custom-properties', 'declarations'],
@@ -780,6 +788,7 @@ testRule(rule, {
 					$width: 5px;
 				}
 			`,
+			message: messages.expected('declaration', '$-variable'),
 		},
 		{
 			code: `
@@ -794,11 +803,12 @@ testRule(rule, {
 					$width: 5px;
 				}
 			`,
+			message: messages.expected('custom property', '$-variable'),
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -866,6 +876,10 @@ testRule(rule, {
 					span {}
 				}
 			`,
+			message: messages.expected(
+				'rule with selector matching "^a"',
+				'rule with selector matching "/^&/"'
+			),
 		},
 		{
 			code: `
@@ -880,6 +894,7 @@ testRule(rule, {
 					span {}
 				}
 			`,
+			message: messages.expected('rule with selector matching "/^&/"', 'rule'),
 		},
 		{
 			code: `
@@ -894,11 +909,12 @@ testRule(rule, {
 					span {}
 				}
 			`,
+			message: messages.expected('rule with selector matching "^a"', 'rule'),
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -954,6 +970,7 @@ testRule(rule, {
 					b & {}
 				}
 			`,
+			message: messages.expected('rule with selector matching "/^&/"', 'rule'),
 		},
 		{
 			code: `
@@ -970,11 +987,12 @@ testRule(rule, {
 					b & {}
 				}
 			`,
+			message: messages.expected('rule with selector matching "/^&/"', 'rule'),
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -1029,6 +1047,10 @@ testRule(rule, {
 					& b {}
 				}
 			`,
+			message: messages.expected(
+				'rule with selector matching "/^&:\\w/"',
+				'rule with selector matching "/^&/"'
+			),
 		},
 		{
 			code: `
@@ -1043,11 +1065,12 @@ testRule(rule, {
 					&:hover {}
 				}
 			`,
+			message: messages.expected('rule', 'rule with selector matching "/^&:\\w/"'),
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	syntax: 'less',
 	config: [['custom-properties', 'at-variables', 'declarations', 'rules', 'at-rules']],
@@ -1100,12 +1123,13 @@ testRule(rule, {
 					}
 				}
 			`,
+			message: messages.expected('@-variable', 'declaration'),
 		},
 	],
 });
 
 // Doesn't has fix, because postcss-sorting doesn't know about less-mixins
-testRule(rule, {
+testRule({
 	ruleName,
 	syntax: 'less',
 	config: [['less-mixins', 'rules']],
@@ -1152,7 +1176,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		['custom-properties', 'dollar-variables', 'declarations', 'rules', 'at-rules'],
@@ -1195,12 +1219,7 @@ testRule(rule, {
 					--width: 10px;
 				}
 			`,
-			fixed: `
-				a {
-					display: none;
-					--width: 10px;
-				}
-			`,
+			unfixable: true,
 			message: messages.expected('custom property', 'declaration'),
 			description: `shouldn't apply fixes`,
 		},
@@ -1212,19 +1231,14 @@ testRule(rule, {
 					$height: 20px;
 				}
 			`,
-			fixed: `
-				a {
-					--width: 10px;
-					display: none;
-					$height: 20px;
-				}
-			`,
+			unfixable: true,
+			message: messages.expected('$-variable', 'declaration'),
 			description: `shouldn't apply fixes`,
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [['custom-properties']],
 	fix: true,
@@ -1250,7 +1264,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [['declarations', 'rules', 'at-rules']],
 	syntax: 'css-in-js',
@@ -1343,6 +1357,14 @@ testRule(rule, {
 					}
 				\`;
 			`,
+			warnings: [
+				{
+					message: messages.expected('rule', 'at-rule'),
+				},
+				{
+					message: messages.expected('declaration', 'rule'),
+				},
+			],
 		},
 		{
 			code: `
@@ -1365,6 +1387,7 @@ testRule(rule, {
 					}
 				\`;
 			`,
+			message: messages.expected('declaration', 'rule'),
 		},
 		{
 			code: `
@@ -1395,6 +1418,14 @@ testRule(rule, {
 					}
 				\`;
 			`,
+			warnings: [
+				{
+					message: messages.expected('declaration', 'rule'),
+				},
+				{
+					message: messages.expected('rule', 'at-rule'),
+				},
+			],
 		},
 		{
 			code: `
@@ -1429,6 +1460,14 @@ testRule(rule, {
 					}
 				\`;
 			`,
+			warnings: [
+				{
+					message: messages.expected('declaration', 'rule'),
+				},
+				{
+					message: messages.expected('rule', 'at-rule'),
+				},
+			],
 		},
 		{
 			code: `
@@ -1453,6 +1492,7 @@ testRule(rule, {
 					}
 				\`;
 			`,
+			message: messages.expected('declaration', 'rule'),
 		},
 	],
 });

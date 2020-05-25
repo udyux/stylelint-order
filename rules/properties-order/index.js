@@ -1,34 +1,30 @@
 const stylelint = require('stylelint');
 const _ = require('lodash');
-const utils = require('../../utils');
-const checkNode = require('./checkNode');
-const createExpectedOrder = require('./createExpectedOrder');
+const { getContainingNode, isRuleWithNodes } = require('../../utils');
+const checkNodeForOrder = require('./checkNodeForOrder');
+const checkNodeForEmptyLines = require('./checkNodeForEmptyLines');
+const createOrderInfo = require('./createOrderInfo');
 const validatePrimaryOption = require('./validatePrimaryOption');
 
-const ruleName = utils.namespace('properties-order');
+const ruleName = require('./ruleName');
+const messages = require('./messages');
 
-const messages = stylelint.utils.ruleMessages(ruleName, {
-	expected: (first, second, groupName) => `
-	  Expected "${first}" to come before "${second}"${groupName ? ` in group "${groupName}"` : ''}`,
-	expectedEmptyLineBefore: property => `Expected an empty line before property "${property}"`,
-	rejectedEmptyLineBefore: property => `Unexpected an empty line before property "${property}"`,
-});
-
-const rule = function(expectation, options, context = {}) {
-	return function(root, result) {
-		const validOptions = stylelint.utils.validateOptions(
+function rule(primaryOption, options = {}, context = {}) {
+	return function ruleBody(root, result) {
+		let validOptions = stylelint.utils.validateOptions(
 			result,
 			ruleName,
 			{
-				actual: expectation,
+				actual: primaryOption,
 				possible: validatePrimaryOption,
 			},
 			{
 				actual: options,
 				possible: {
 					unspecified: ['top', 'bottom', 'ignore', 'bottomAlphabetical'],
-					emptyLineBeforeUnspecified: ['always', 'never'],
+					emptyLineBeforeUnspecified: ['always', 'never', 'threshold'],
 					disableFix: _.isBoolean,
+					emptyLineMinimumPropertyThreshold: _.isNumber,
 				},
 				optional: true,
 			}
@@ -38,48 +34,51 @@ const rule = function(expectation, options, context = {}) {
 			return;
 		}
 
-		// By default, ignore unspecified properties
-		const unspecified = _.get(options, 'unspecified', 'ignore');
-		const emptyLineBeforeUnspecified = _.get(options, 'emptyLineBeforeUnspecified', '');
-		const disableFix = _.get(options, 'disableFix', false);
-		const isFixEnabled = context.fix && !disableFix;
+		let isFixEnabled = context.fix && !options.disableFix;
+		let expectedOrder = createOrderInfo(primaryOption);
 
-		const expectedOrder = createExpectedOrder(expectation);
-
-		const sharedInfo = {
-			expectedOrder,
-			expectation,
-			unspecified,
-			emptyLineBeforeUnspecified,
-			messages,
-			ruleName,
-			result,
-			context,
-			isFixEnabled,
-		};
-
-		const processedParents = [];
+		let processedParents = [];
 
 		// Check all rules and at-rules recursively
 		root.walk(function processRulesAndAtrules(input) {
-			const node = utils.getContainingNode(input);
+			let node = getContainingNode(input);
 
-			// Avoid warnings duplication, caused by interfering in `root.walk()` algorigthm with `utils.getContainingNode()`
+			// Avoid warnings duplication, caused by interfering in `root.walk()` algorigthm with `getContainingNode()`
 			if (processedParents.includes(node)) {
 				return;
 			}
 
 			processedParents.push(node);
 
-			if (utils.isRuleWithNodes(node)) {
-				checkNode(node, sharedInfo, input);
+			if (isRuleWithNodes(node)) {
+				checkNodeForOrder({
+					node,
+					originalNode: input,
+					isFixEnabled,
+					primaryOption,
+					unspecified: options.unspecified || 'ignore',
+					result,
+					expectedOrder,
+				});
+
+				checkNodeForEmptyLines({
+					node,
+					context,
+					emptyLineBeforeUnspecified: options.emptyLineBeforeUnspecified,
+					emptyLineMinimumPropertyThreshold:
+						options.emptyLineMinimumPropertyThreshold || 0,
+					expectedOrder,
+					isFixEnabled,
+					primaryOption,
+					result,
+				});
 			}
 		});
 	};
-};
+}
 
 rule.primaryOptionArray = true;
-
 rule.ruleName = ruleName;
 rule.messages = messages;
+
 module.exports = rule;

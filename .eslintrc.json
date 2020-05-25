@@ -12,16 +12,5 @@
 	"globals": {
 		"testConfig": true,
 		"testRule": true
-	},
-	"rules": {
-		"prefer-destructuring": [
-			"error",
-			{
-		       "array": false,
-		       "object": true
-		    }
-		],
-		"prefer-rest-params": ["error"],
-		"prefer-spread": ["error"]
 	}
 }

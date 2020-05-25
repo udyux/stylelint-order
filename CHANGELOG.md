@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Head
+
+* Fixed `order` not reporting warnings, if autofix didn't fix them.
+
+## 4.0.0
+
+* Breaking change: Dropped Node.js 8 support. Node.js 10 or greater is now required.
+* Breaking change: Always remove empty line before the first property if this property has any `emptyLineBefore*` option targeting it in `properties-order`. Even if option set to `always` empty line before the first property will be removed.
+* Fixed false positives for `emptyLineBeforeUnspecified`.
+
+## 3.1.1
+
+* Added `stylelint@11` as a peer dependency.
+
+## 3.1.0
+
+* Added `emptyLineBefore: "threshold"` option, and related options (`emptyLineMinimumPropertyThreshold`, `emptyLineBeforeUnspecified: "threshold"`) to `properties-order`.
+
+## 3.0.1
+
+* Fixed `properties-order` not report warnings, if autofix didn't fix them.
+* Fixed `properties-alphabetical-order` now puts shorthands before their longhand forms even if that isn't alphabetical to avoid broken CSS. E. g. `border-color` will be before `border-bottom-color`.
+
 ## 3.0.0
 
 - Dropped Node.js 6 support. Node.js 8.7.0 or greater is now required.

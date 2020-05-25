@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
-module.exports = function createExpectedOrder(input) {
-	const order = {};
+module.exports = function createOrderInfo(input) {
+	let order = {};
 	let expectedPosition = 0;
 	let separatedGroup = 1;
 	let groupPosition = -1;
@@ -10,7 +10,7 @@ module.exports = function createExpectedOrder(input) {
 
 	function appendGroup(group) {
 		groupPosition += 1;
-		group.properties.forEach(item => appendItem(item, false, group));
+		group.properties.forEach((item) => appendItem(item, false, group));
 	}
 
 	function appendItem(item, inFlexibleGroup, group) {
@@ -38,11 +38,11 @@ module.exports = function createExpectedOrder(input) {
 			separatedGroup += 1;
 		}
 
-		if (item.order && item.order === 'flexible') {
+		if (item.order === 'flexible') {
 			expectedPosition += 1;
 			groupPosition += 1;
 
-			item.properties.forEach(property => {
+			item.properties.forEach((property) => {
 				appendItem(property, true, item);
 			});
 		} else {

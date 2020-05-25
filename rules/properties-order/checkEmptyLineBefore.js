@@ -1,57 +1,83 @@
-const stylelint = require('stylelint');
-const _ = require('lodash');
-const addEmptyLineBefore = require('./addEmptyLineBefore');
-const hasEmptyLineBefore = require('./hasEmptyLineBefore');
-const removeEmptyLinesBefore = require('./removeEmptyLinesBefore');
+let stylelint = require('stylelint');
+let _ = require('lodash');
+let addEmptyLineBefore = require('./addEmptyLineBefore');
+let hasEmptyLineBefore = require('./hasEmptyLineBefore');
+let removeEmptyLinesBefore = require('./removeEmptyLinesBefore');
+let ruleName = require('./ruleName');
+let messages = require('./messages');
 
-module.exports = function checkEmptyLineBefore(firstPropData, secondPropData, sharedInfo) {
-	const firstPropIsUnspecified = !firstPropData.orderData;
-	const secondPropIsUnspecified = !secondPropData.orderData;
+module.exports = function checkEmptyLineBefore({
+	firstPropData,
+	secondPropData,
+	propsCount,
+	lastKnownSeparatedGroup,
+	context,
+	emptyLineBeforeUnspecified,
+	emptyLineMinimumPropertyThreshold,
+	isFixEnabled,
+	primaryOption,
+	result,
+}) {
+	let firstPropIsSpecified = Boolean(firstPropData.orderData);
+	let secondPropIsSpecified = Boolean(secondPropData.orderData);
 
 	// Check newlines between groups
-	const firstPropSeparatedGroup = !firstPropIsUnspecified
+	let firstPropGroup = firstPropIsSpecified
 		? firstPropData.orderData.separatedGroup
-		: sharedInfo.lastKnownSeparatedGroup;
-	const secondPropSeparatedGroup = !secondPropIsUnspecified
+		: lastKnownSeparatedGroup;
+	let secondPropGroup = secondPropIsSpecified
 		? secondPropData.orderData.separatedGroup
-		: sharedInfo.lastKnownSeparatedGroup;
+		: lastKnownSeparatedGroup;
 
-	sharedInfo.lastKnownSeparatedGroup = secondPropSeparatedGroup;
+	// eslint-disable-next-line no-param-reassign
+	lastKnownSeparatedGroup = secondPropGroup;
 
-	const betweenGroupsInSpecified =
-		firstPropSeparatedGroup !== secondPropSeparatedGroup && !secondPropIsUnspecified;
-	const startOfUnspecifiedGroup = !firstPropIsUnspecified && secondPropIsUnspecified;
+	let startOfSpecifiedGroup = secondPropIsSpecified && firstPropGroup !== secondPropGroup;
+	let startOfUnspecifiedGroup = firstPropIsSpecified && !secondPropIsSpecified;
 
-	if (betweenGroupsInSpecified || startOfUnspecifiedGroup) {
+	if (startOfSpecifiedGroup || startOfUnspecifiedGroup) {
 		// Get an array of just the property groups, remove any solo properties
-		const groups = _.reject(sharedInfo.expectation, _.isString);
+		let groups = _.reject(primaryOption, _.isString);
 
-		const emptyLineBefore = !startOfUnspecifiedGroup
-			? // secondProp seperatedGroups start at 2 so we minus 2 to get the
-			  // 1st item from our groups array
-			  _.get(groups[secondPropSeparatedGroup - 2], 'emptyLineBefore')
-			: sharedInfo.emptyLineBeforeUnspecified;
+		let emptyLineBefore = _.get(groups[secondPropGroup - 2], 'emptyLineBefore');
 
-		if (!hasEmptyLineBefore(secondPropData.node) && emptyLineBefore === 'always') {
-			if (sharedInfo.isFixEnabled) {
-				addEmptyLineBefore(secondPropData.node, sharedInfo.context.newline);
+		if (startOfUnspecifiedGroup) {
+			emptyLineBefore = emptyLineBeforeUnspecified;
+		}
+
+		// Threshold logic
+		let belowEmptyLineThreshold = propsCount < emptyLineMinimumPropertyThreshold;
+		let emptyLineThresholdInsertLines =
+			emptyLineBefore === 'threshold' && !belowEmptyLineThreshold;
+		let emptyLineThresholdRemoveLines =
+			emptyLineBefore === 'threshold' && belowEmptyLineThreshold;
+
+		if (
+			(emptyLineBefore === 'always' || emptyLineThresholdInsertLines) &&
+			!hasEmptyLineBefore(secondPropData.node)
+		) {
+			if (isFixEnabled) {
+				addEmptyLineBefore(secondPropData.node, context.newline);
 			} else {
 				stylelint.utils.report({
-					message: sharedInfo.messages.expectedEmptyLineBefore(secondPropData.name),
+					message: messages.expectedEmptyLineBefore(secondPropData.name),
 					node: secondPropData.node,
-					result: sharedInfo.result,
-					ruleName: sharedInfo.ruleName,
+					result,
+					ruleName,
 				});
 			}
-		} else if (hasEmptyLineBefore(secondPropData.node) && emptyLineBefore === 'never') {
-			if (sharedInfo.isFixEnabled) {
-				removeEmptyLinesBefore(secondPropData.node, sharedInfo.context.newline);
+		} else if (
+			(emptyLineBefore === 'never' || emptyLineThresholdRemoveLines) &&
+			hasEmptyLineBefore(secondPropData.node)
+		) {
+			if (isFixEnabled) {
+				removeEmptyLinesBefore(secondPropData.node, context.newline);
 			} else {
 				stylelint.utils.report({
-					message: sharedInfo.messages.rejectedEmptyLineBefore(secondPropData.name),
+					message: messages.rejectedEmptyLineBefore(secondPropData.name),
 					node: secondPropData.node,
-					result: sharedInfo.result,
-					ruleName: sharedInfo.ruleName,
+					result,
+					ruleName,
 				});
 			}
 		}
@@ -59,21 +85,22 @@ module.exports = function checkEmptyLineBefore(firstPropData, secondPropData, sh
 
 	// Check newlines between properties inside a group
 	if (
-		!firstPropIsUnspecified &&
-		!secondPropIsUnspecified &&
+		firstPropIsSpecified &&
+		secondPropIsSpecified &&
 		firstPropData.orderData.groupPosition === secondPropData.orderData.groupPosition
 	) {
-		const noEmptyLineBefore = secondPropData.orderData.noEmptyLineBeforeInsideGroup;
-
-		if (hasEmptyLineBefore(secondPropData.node) && noEmptyLineBefore) {
-			if (sharedInfo.isFixEnabled) {
-				removeEmptyLinesBefore(secondPropData.node, sharedInfo.context.newline);
+		if (
+			secondPropData.orderData.noEmptyLineBeforeInsideGroup &&
+			hasEmptyLineBefore(secondPropData.node)
+		) {
+			if (isFixEnabled) {
+				removeEmptyLinesBefore(secondPropData.node, context.newline);
 			} else {
 				stylelint.utils.report({
-					message: sharedInfo.messages.rejectedEmptyLineBefore(secondPropData.name),
+					message: messages.rejectedEmptyLineBefore(secondPropData.name),
 					node: secondPropData.node,
-					result: sharedInfo.result,
-					ruleName: sharedInfo.ruleName,
+					result,
+					ruleName,
 				});
 			}
 		}

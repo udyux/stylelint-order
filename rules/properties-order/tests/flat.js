@@ -1,7 +1,8 @@
 const rule = require('..');
+
 const { ruleName, messages } = rule;
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [['my', 'transform', 'font-smoothing', 'top', 'transition', 'border', 'color']],
 	fix: true,
@@ -17,10 +18,12 @@ testRule(rule, {
 			code: 'a { top: 0; color: pink; }',
 		},
 		{
-			code: 'a { -moz-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); }',
+			code:
+				'a { -moz-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); }',
 		},
 		{
-			code: 'a { -webkit-transform: scale(1); -moz-transform: scale(1); transform: scale(1); }',
+			code:
+				'a { -webkit-transform: scale(1); -moz-transform: scale(1); transform: scale(1); }',
 		},
 		{
 			code: 'a { -webkit-font-smoothing: antialiased; top: 0; color: pink; }',
@@ -61,8 +64,10 @@ testRule(rule, {
 			message: messages.expected('transform', 'top'),
 		},
 		{
-			code: 'a { -moz-transform: scale(1); transform: scale(1); -webkit-transform: scale(1); }',
-			fixed: 'a { -moz-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); }',
+			code:
+				'a { -moz-transform: scale(1); transform: scale(1); -webkit-transform: scale(1); }',
+			fixed:
+				'a { -moz-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); }',
 			message: messages.expected('-webkit-transform', 'transform'),
 		},
 		{
@@ -89,7 +94,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [['my', 'transform', 'font-smoothing', 'top', 'transition', 'border', 'color']],
 
@@ -103,7 +108,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -133,7 +138,8 @@ testRule(rule, {
 			code: 'a { padding-top: 1px; padding-right: 0; color: pink; }',
 		},
 		{
-			code: 'a { border: 1px solid #fff; border-right: 2px solid #fff; border-right-color: #000; }',
+			code:
+				'a { border: 1px solid #fff; border-right: 2px solid #fff; border-right-color: #000; }',
 		},
 		{
 			code: 'a { border: 1px solid #fff; border-top: none; border-right-color: #000; }',
@@ -159,7 +165,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		[
@@ -185,7 +191,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		['height', 'color'],
@@ -218,7 +224,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		['height', 'color'],
@@ -251,7 +257,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		['all', 'compose'],
@@ -287,21 +293,16 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [['left', 'margin']],
+	fix: true,
 
 	accept: [
 		{
 			code: '.foo { left: 0; color: pink; margin: 0; }',
 		},
 	],
-});
-
-testRule(rule, {
-	ruleName,
-	config: [['left', 'margin']],
-	fix: true,
 
 	reject: [
 		{
@@ -313,7 +314,7 @@ testRule(rule, {
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [
 		['my', 'transform', 'font-smoothing', 'top', 'transition', 'border', 'color'],
@@ -335,20 +336,20 @@ testRule(rule, {
 	reject: [
 		{
 			code: 'a { color: pink; top: 0;  }',
-			fixed: 'a { color: pink; top: 0;  }',
+			unfixable: true,
 			message: messages.expected('top', 'color'),
 			description: `shouldn't apply fixes`,
 		},
 		{
 			code: 'a { top: 0; transform: scale(1); color: pink; }',
-			fixed: 'a { top: 0; transform: scale(1); color: pink; }',
+			unfixable: true,
 			message: messages.expected('transform', 'top'),
 			description: `shouldn't apply fixes`,
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [['top', 'color']],
 	syntax: 'css-in-js',
@@ -416,6 +417,7 @@ testRule(rule, {
 					color: tomato;
 				\`;
 			`,
+			message: messages.expected('top', 'color'),
 		},
 		{
 			code: `
@@ -425,13 +427,8 @@ testRule(rule, {
 					top: 0;
 				\`;
 			`,
-			fixed: `
-				const Component = styled.div\`
-					color: tomato;
-					\${props => props.great && 'color: red;'}
-					top: 0;
-				\`;
-			`,
+			unfixable: true,
+			message: messages.expected('top', 'color'),
 		},
 		{
 			code: `
@@ -446,18 +443,8 @@ testRule(rule, {
 					}
 				\`;
 			`,
-			fixed: `
-				const Component = styled.div\`
-					color: tomato;
-					\${props => props.great && 'color: red;'}
-					top: 0;
-
-					a {
-						top: 0;
-						color: tomato;
-					}
-				\`;
-			`,
+			unfixable: true,
+			message: messages.expected('top', 'color'),
 		},
 		{
 			code: `
@@ -472,23 +459,13 @@ testRule(rule, {
 					}
 				\`;
 			`,
-			fixed: `
-				const Component = styled.div\`
-					top: 0;
-					color: tomato;
-
-					a {
-						color: tomato;
-						\${props => props.great && 'color: red;'}
-						top: 0;
-					}
-				\`;
-			`,
+			unfixable: true,
+			message: messages.expected('top', 'color'),
 		},
 	],
 });
 
-testRule(rule, {
+testRule({
 	ruleName,
 	config: [['top', 'color']],
 	syntax: 'html',
@@ -556,6 +533,7 @@ testRule(rule, {
 				</body>
 				</html>
 			`,
+			message: messages.expected('top', 'color'),
 		},
 		{
 			code: `
@@ -574,6 +552,7 @@ testRule(rule, {
 				</body>
 				</html>
 			`,
+			message: messages.expected('top', 'color'),
 		},
 	],
 });
